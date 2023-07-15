@@ -17,10 +17,10 @@ provider "aws" {
 module "lambda" {
   source = "./modules/lambda"
 
-  policy_arn = module.iam.iam_role_arn
+  iam_policy_arn = module.iam.iam_policy_arn
   iam_role_name =  module.iam.iam_role_name
   iam_role_arn = module.iam.iam_role_arn
-
+  
 }
 
 module "iam" {
