@@ -38,7 +38,7 @@ resource "aws_lambda_permission" "api_gateway_invoke_permission" {
   source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*"
 }
 
-resource "aws_api_gateway_deployment" "example" {
+resource "aws_api_gateway_deployment" "api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
 
   lifecycle {
@@ -52,7 +52,7 @@ resource "aws_api_gateway_deployment" "example" {
 }
 
 resource "aws_api_gateway_stage" "apistage" {
-  deployment_id = aws_api_gateway_deployment.example.id
+  deployment_id = aws_api_gateway_deployment.api_deployment.id
   rest_api_id   = aws_api_gateway_rest_api.api.id
   stage_name    = "test"
 }
