@@ -21,3 +21,18 @@ variable "zip_file_name" {
     type = string
     default = "python_file.zip"
 }
+
+variable "policy_arn" {
+    description = "This is imported from iam module"
+    type = string
+}
+
+variable "iam_role_name" {
+    description = "This is imported from iam module"
+    type = string
+}
+
+variable "iam_role_arn" {
+    description = "This is iam role arn"
+    type = string
+}

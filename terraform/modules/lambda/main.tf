@@ -1,9 +1,10 @@
 resource "aws_lambda_function" "movie_function" {
   function_name = var.lambda_function_name
-  role          = aws_iam_role.iam_for_lambda.arn
-  handler       = "lambda.lambda_handler"
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key = aws_s3_object.lambda_object.key
+
+  handler       = "lambda.lambda_handler"
+  role          = var.iam_role_arn
 
   source_code_hash = filebase64sha256(var.zip_file_path)
 
@@ -15,39 +16,6 @@ resource "aws_lambda_function" "movie_function" {
   #   }
   # }
 }
-
-
-
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam-lambda"
-
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-POLICY
-}
-
-
-resource "aws_iam_role_policy_attachment" "lambda_policy" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-
-# resource "aws_cloudwatch_log_group" "hello" {
-#   name = "/aws/lambda/${}"
-
-#   retention_in_days = 1
-# }
 
 resource "aws_s3_bucket" "lambda_bucket" {
   bucket = var.s3_bucket_name
@@ -67,4 +35,9 @@ resource "aws_s3_object" "lambda_object" {
   bucket = aws_s3_bucket.lambda_bucket.id
   key    = var.zip_file_name
   source = var.zip_file_path
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_role_attach" {
+  role      = var.iam_role_name
+  policy_arn = var.policy_arn
 }
