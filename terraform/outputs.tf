@@ -1,11 +1,11 @@
-output "teraform_aws_role_output" {
- value = aws_iam_role.iam_for_lambda.name
-}
+# output "lambda_function_arn" {
+#   value = module.lambda.lambda_function_arn
+# }
 
-output "teraform_aws_role_arn_output" {
- value = aws_iam_role.iam_for_lambda.arn
-}
+# output "lambda_function_name" {
+#   value =  module.lambda.lambda_function_name
+# }
 
-output "teraform_logging_arn_output" {
- value = aws_iam_role_policy_attachment.lambda_policy.policy_arn
-}
+# output "iam_role_arn" {
+#   value = module.iam.iam_role_arn
+# }

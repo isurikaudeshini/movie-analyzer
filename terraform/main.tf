@@ -1,68 +1,38 @@
-resource "aws_lambda_function" "movie_function" {
-  function_name = var.lambda_function_name
-  role          = aws_iam_role.iam_for_lambda.arn
-  handler       = "lambda.lambda_handler"
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key = aws_s3_object.lambda_object.key
-
-  source_code_hash = filebase64sha256(var.zip_file_path)
-
-  runtime = "python3.9"
-
-  # environment {
-  #   variables = {
-  #     foo = "bar"
-  #   }
-  # }
-}
-
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam-lambda"
-
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
+# Terraform Block
+terraform {
+  required_version = ">= 1.3"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">=5.7.0"
     }
-  ]
-}
-POLICY
+  }
 }
 
-
-resource "aws_iam_role_policy_attachment" "lambda_policy" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+# Provider Block
+provider "aws" {
+  region = "us-east-1"
 }
 
-# resource "aws_cloudwatch_log_group" "hello" {
-#   name = "/aws/lambda/${}"
+module "lambda" {
+  source = "./modules/lambda"
 
-#   retention_in_days = 1
-# }
-
-resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = var.s3_bucket_name
-  force_destroy = true
+  iam_policy_arn = module.iam.iam_policy_arn
+  iam_role_name =  module.iam.iam_role_name
+  iam_role_arn = module.iam.iam_role_arn
+  
 }
 
-resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
-  bucket = aws_s3_bucket.lambda_bucket.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+module "iam" {
+  source = "./modules/iam"
 }
 
-resource "aws_s3_object" "lambda_object" {
-  bucket = aws_s3_bucket.lambda_bucket.id
-  key    = var.zip_file_name
-  source = var.zip_file_path
+module "api_gateway" {
+  source   = "./modules/api_gateway"
+  myregion = var.myregion
+
+  lambda_arn = module.lambda.lambda_function_arn
+  lambda_function_name =  module.lambda.lambda_function_name
+  lambda_invoke_arn = module.lambda.lambda_invoke_arn
+  
 }
