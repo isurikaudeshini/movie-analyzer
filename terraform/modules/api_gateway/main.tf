@@ -3,6 +3,9 @@
 resource "aws_api_gateway_rest_api" "api" {
   name        = var.api_name
   description = "Terraform serverless application movies funtion"
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
 }
 
 resource "aws_api_gateway_resource" "proxy" {
@@ -14,7 +17,7 @@ resource "aws_api_gateway_resource" "proxy" {
 resource "aws_api_gateway_method" "method" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.proxy.id
-  http_method   = "GET"
+  http_method   = "POST"
   authorization = "NONE"
 }
 

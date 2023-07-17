@@ -1,25 +1,21 @@
 resource "aws_lambda_function" "movie_function" {
   function_name = var.lambda_function_name
-  s3_bucket     = aws_s3_bucket.lambda_bucket.id
-  s3_key        = aws_s3_object.lambda_object.key
+  filename      = "../build/code.zip"
 
   handler = "lambda.lambda_handler"
   role    = var.iam_role_arn
 
-  source_code_hash = filebase64sha256(var.zip_file_path)
+  source_code_hash = filebase64sha256(var.python_code_zip_path)
 
-  runtime = "python3.8"
+  runtime = var.runtime_version
+
+  layers = [aws_lambda_layer_version.lambda_layer.arn]
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda_role_attach,
     aws_cloudwatch_log_group.lambda_cloudwatch
   ]
 
-  # environment {
-  #   variables = {
-  #     foo = "bar"
-  #   }
-  # }
 }
 
 resource "aws_cloudwatch_log_group" "lambda_cloudwatch" {
@@ -48,6 +44,16 @@ resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
 
 resource "aws_s3_object" "lambda_object" {
   bucket = aws_s3_bucket.lambda_bucket.id
-  key    = var.zip_file_name
-  source = var.zip_file_path
+  key    = var.package_zip_file_name
+  source = var.package_zip_file_path
 }
+
+resource "aws_lambda_layer_version" "lambda_layer" {
+  layer_name               = var.lambda_layer_name
+  compatible_runtimes      = [var.runtime_version]
+  compatible_architectures = ["x86_64"]
+
+  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_key    = aws_s3_object.lambda_object.key
+}
+
