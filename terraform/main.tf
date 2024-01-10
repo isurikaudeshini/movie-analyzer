@@ -37,16 +37,16 @@ module "api_gateway" {
   
 }
 
-# resource "null_resource" "generate_lambda_zip" {
-#   provisioner "local-exec" {
-#     command = "bash ./modules/scripts/package_lambda.sh"
+resource "null_resource" "generate_lambda_zip" {
+  provisioner "local-exec" {
+    command = "bash ./scripts/package_lambda.sh"
 
-#     environment = {
-#       source_code_path = "../infrastructure/code"
-#       module_dir_path  = "../modules"
-#       build_dir_path   = "../build"
-#       path_pwd         = path.module
+    environment = {
+      source_code_path = "../infrastructure/code"
+      module_dir_path  = "../modules"
+      build_dir_path   = "../build"
+      path_pwd         = path.module
 
-#     }
-#   }
-# }
+    }
+  }
+}
